@@ -40,7 +40,7 @@ app.get("/todos", async (req, res) => {
 app.get("/todos/:todoId", async (req, res) => {
   const { todos } = await read()
   const todoId = Number.parseInt(req.params.todoId, 10)
-  const todo = todos.find(({ id }) => id === todoId, 10)
+  const todo = todos.find(({ id }) => id === todoId)
 
   if (!todo) {
     res.status(404).send({ error: "Not found" })
@@ -56,7 +56,7 @@ app.patch("/todos/:todoId", async (req, res) => {
   const { description, done } = req.body
   const { lastId, todos } = await read()
   const todoId = Number.parseInt(req.params.todoId, 10)
-  const todo = todos.find(({ id }) => id === todoId, 10)
+  const todo = todos.find(({ id }) => id === todoId)
 
   if (!todo) {
     res.status(404).send({ error: "Not found" })
@@ -82,7 +82,7 @@ app.patch("/todos/:todoId", async (req, res) => {
 app.delete("/todos/:todoId", async (req, res) => {
   const { lastId, todos } = await read()
   const todoId = Number.parseInt(req.params.todoId, 10)
-  const todo = todos.find(({ id }) => id === todoId, 10)
+  const todo = todos.find(({ id }) => id === todoId)
 
   if (!todo) {
     res.status(404).send({ error: "Not found" })
