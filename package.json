@@ -1,0 +1,14 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "eslint": "^8.33.0",
+    "eslint-config-prettier": "^8.6.0",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.3"
+  },
+  "dependencies": {
+    "chalk": "^5.2.0",
+    "express": "^5.0.0-beta.1",
+    "morgan": "^1.10.0"
+  }
+}
