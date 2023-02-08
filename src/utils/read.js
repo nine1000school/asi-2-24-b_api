@@ -10,9 +10,23 @@ const read = async () => {
   return content
     ? JSON.parse(content)
     : {
-        lastId: 0,
-        users: [],
+        users: {
+          lastId: 0,
+          records: {},
+        },
+        posts: {
+          lastId: 0,
+          records: {},
+        },
       }
 }
+
+export const getResources = (resourceName) => (db) => db[resourceName].records
+
+export const getResourceByField =
+  (resourceName, fieldName) => (db, fieldValue) =>
+    Object.values(db[resourceName].records).find(
+      (resource) => resource[fieldName] === fieldValue
+    )
 
 export default read

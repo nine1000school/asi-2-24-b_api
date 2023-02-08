@@ -1,38 +1,52 @@
 import jsonwebtoken from "jsonwebtoken"
 import config from "../config.js"
-import filterDBResult from "../utils/filterDBResult.js"
 import hashPassword from "../utils/hashPassword.js"
-import read from "../utils/read.js"
+import read, { getResourceByField } from "../utils/read.js"
 import write from "../utils/write.js"
+
+const getUserByEmail = getResourceByField("users", "email")
 
 const prepareSignRoutes = (app) => {
   // CREATE
   app.post("/sign-up", async (req, res) => {
     const { firstName, lastName, email, password } = req.body
     const [passwordHash, passwordSalt] = hashPassword(password)
-    const { lastId, users } = await read()
-    const newId = lastId + 1
-    const user = {
-      id: newId,
-      firstName,
-      lastName,
-      email,
-      passwordHash,
-      passwordSalt,
+    const db = await read()
+
+    console.log(db)
+    const user = getUserByEmail(db, email)
+
+    if (user) {
+      res.send({ result: true })
+
+      return
     }
 
-    await write({
-      lastId: newId,
-      users: [...users, user],
+    const lastId = db.users.lastId + 1
+
+    await write(db, {
+      users: {
+        lastId,
+        records: {
+          [lastId]: {
+            id: lastId,
+            firstName,
+            lastName,
+            email,
+            passwordHash,
+            passwordSalt,
+          },
+        },
+      },
     })
 
-    res.send(filterDBResult(user))
+    res.send({ result: true })
   })
 
   app.post("/sign-in", async (req, res) => {
     const { email, password } = req.body
-    const { users } = await read()
-    const user = users.find((user) => user.email === email)
+    const db = await read()
+    const user = getUserByEmail(db, email)
 
     if (!user) {
       res.status(401).send({ error: "Invalid credentials" })
