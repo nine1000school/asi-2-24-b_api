@@ -1,8 +1,9 @@
 import "dotenv/config"
 
 const config = {
+  port: process.env.PORT,
   db: {
-    path: "./.db.json",
+    uri: process.env.DB_URI,
   },
   security: {
     jwt: {

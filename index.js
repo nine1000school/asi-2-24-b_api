@@ -1,11 +1,15 @@
 import express from "express"
+import mongoose from "mongoose"
 import morgan from "morgan"
+import config from "./src/config.js"
 import prepareCommentsRoutes from "./src/routes/prepareCommentsRoutes.js"
 import preparePostsRoutes from "./src/routes/preparePostsRoutes.js"
 import prepareSignRoutes from "./src/routes/prepareSignRoutes.js"
 
 const app = express()
 const log = morgan("dev")
+
+await mongoose.connect(config.db.uri)
 
 app.use(log)
 app.use(express.json())
@@ -19,4 +23,4 @@ app.use((req, res) => {
   res.status(404).send({ error: "Not found" })
 })
 
-app.listen(3001, () => console.log("Listening on :3001"))
+app.listen(config.port, () => console.log(`Listening on :${config.port}`))

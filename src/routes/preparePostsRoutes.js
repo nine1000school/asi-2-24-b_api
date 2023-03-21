@@ -1,36 +1,25 @@
+import PostModel from "../db/models/PostModel.js"
 import auth from "../middlewares/auth.js"
 import filterDBResult from "../utils/filterDBResult.js"
-import read, { getResourceByField, getResources } from "../utils/read.js"
-import write from "../utils/write.js"
-
-const getPostById = getResourceByField("posts", "id")
-const getPosts = getResources("posts")
 
 const preparePostsRoutes = (app) => {
   // CREATE
   app.post("/posts", auth, async (req, res) => {
     const { title, content } = req.body
-    const sessionUserId = req.session.user.id
-    const db = await read()
-    const lastId = db.posts.lastId + 1
+    const sessionUser = req.session.user
     const post = {
-      id: lastId,
       title,
       content,
-      userId: sessionUserId,
-      publishedAt: null,
+      author: {
+        id: sessionUser.id,
+        firstName: sessionUser.firstName,
+        lastName: sessionUser.lastName,
+      },
     }
 
-    await write(db, {
-      posts: {
-        lastId,
-        records: {
-          [lastId]: post,
-        },
-      },
-    })
+    const [newPost] = await PostModel.insertMany(post)
 
-    res.send({ result: filterDBResult(post) })
+    res.send({ result: filterDBResult(newPost) })
   })
 
   // READ collection
