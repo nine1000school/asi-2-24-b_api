@@ -18,6 +18,10 @@ const read = async () => {
           lastId: 0,
           records: {},
         },
+        comments: {
+          lastId: 0,
+          records: {},
+        },
       }
 }
 

@@ -12,8 +12,6 @@ const prepareSignRoutes = (app) => {
     const { firstName, lastName, email, password } = req.body
     const [passwordHash, passwordSalt] = hashPassword(password)
     const db = await read()
-
-    console.log(db)
     const user = getUserByEmail(db, email)
 
     if (user) {
