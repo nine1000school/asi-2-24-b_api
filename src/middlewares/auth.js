@@ -18,10 +18,13 @@ const auth = (req, res, next) => {
     next()
   } catch (err) {
     if (err instanceof jsonwebtoken.JsonWebTokenError) {
+      console.error(err)
       res.status(403).send({ error: "Forbidden" })
 
       return
     }
+
+    console.error(err)
 
     res.status(500).send({ error: "Oops. Something went wrong." })
   }

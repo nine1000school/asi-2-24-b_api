@@ -23,18 +23,23 @@ const preparePostsRoutes = (app) => {
   })
 
   // READ collection
-  app.get("/posts", auth, async (req, res) => {
-    const db = await read()
-    const posts = getPosts(db)
+  app.get("/posts", async (req, res) => {
+    const { publishedOnly } = req.query
+    const query = {}
+
+    if (publishedOnly) {
+      query.publishedAt = { $exists: true }
+    }
+
+    const posts = await PostModel.find(query, {}, { lean: true })
 
     res.send({ result: filterDBResult(posts) })
   })
 
   // READ single
   app.get("/posts/:postId", async (req, res) => {
-    const db = await read()
-    const postId = Number.parseInt(req.params.postId, 10)
-    const post = getPostById(db, postId)
+    const { postId } = req.params
+    const post = await PostModel.findById(postId, {}, { lean: true })
 
     if (!post) {
       res.status(404).send({ error: "Not found" })
@@ -49,9 +54,8 @@ const preparePostsRoutes = (app) => {
   app.patch("/posts/:postId", auth, async (req, res) => {
     const { title, content, publishedAt } = req.body
     const sessionUserId = req.session.user.id
-    const db = await read()
-    const postId = Number.parseInt(req.params.postId, 10)
-    const post = getPostById(db, postId)
+    const { postId } = req.params
+    const post = await PostModel.findById(postId, {}, { lean: true })
 
     if (!post) {
       res.status(404).send({ error: "Not found" })
@@ -59,37 +63,26 @@ const preparePostsRoutes = (app) => {
       return
     }
 
-    if (post.userId !== sessionUserId) {
+    if (String(post.author.id) !== String(sessionUserId)) {
       res.status(403).send({ error: "Forbidden" })
 
       return
     }
 
-    const updatedPost = {
-      ...post,
-      title: title ?? post.title,
-      content: content ?? post.content,
-      publishedAt:
-        typeof publishedAt === "undefined" ? post.publishedAt : publishedAt,
-    }
-
-    await write(db, {
-      posts: {
-        records: {
-          [post.id]: updatedPost,
-        },
-      },
+    const updatedPost = await PostModel.findByIdAndUpdate(postId, {
+      title,
+      content,
+      publishedAt,
     })
 
-    res.send(updatedPost)
+    res.send({ result: filterDBResult(updatedPost) })
   })
 
   // DELETE
   app.delete("/posts/:postId", auth, async (req, res) => {
-    const db = await read()
     const sessionUserId = req.session.user.id
-    const postId = Number.parseInt(req.params.postId, 10)
-    const post = getPostById(db, postId)
+    const { postId } = req.params
+    const post = await PostModel.findById(postId, {}, { lean: true })
 
     if (!post) {
       res.status(404).send({ error: "Not found" })
@@ -97,21 +90,15 @@ const preparePostsRoutes = (app) => {
       return
     }
 
-    if (post.userId !== sessionUserId) {
+    if (String(post.author.id) !== String(sessionUserId)) {
       res.status(403).send({ error: "Forbidden" })
 
       return
     }
 
-    await write(db, {
-      posts: {
-        records: {
-          [postId]: undefined,
-        },
-      },
-    })
+    await PostModel.deleteOne({ _id: post._id })
 
-    res.send(post)
+    res.send({ result: filterDBResult(post) })
   })
 }
 
