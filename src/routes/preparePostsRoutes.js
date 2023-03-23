@@ -24,11 +24,15 @@ const preparePostsRoutes = (app) => {
 
   // READ collection
   app.get("/posts", async (req, res) => {
-    const { publishedOnly } = req.query
+    const { publishedOnly, authorId } = req.query
     const query = {}
 
     if (publishedOnly) {
       query.publishedAt = { $exists: true }
+    }
+
+    if (authorId) {
+      query["author.id"] = authorId
     }
 
     const posts = await PostModel.find(query, {}, { lean: true })

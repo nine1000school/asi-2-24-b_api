@@ -1,7 +1,8 @@
 import auth from "../middlewares/auth.js"
 import filterDBResult from "../utils/filterDBResult.js"
-import read from "../utils/read.js"
-import write from "../utils/write.js"
+
+const read = () => {}
+const write = () => {}
 
 const prepareCommentsRoutes = (app) => {
   // CREATE
