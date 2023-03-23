@@ -1,3 +1,4 @@
+import cors from "cors"
 import express from "express"
 import mongoose from "mongoose"
 import morgan from "morgan"
@@ -11,6 +12,7 @@ const log = morgan("dev")
 
 await mongoose.connect(config.db.uri)
 
+app.use(cors())
 app.use(log)
 app.use(express.json())
 
